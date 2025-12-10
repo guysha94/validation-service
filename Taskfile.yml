@@ -3,15 +3,18 @@ version: '3'
 tasks:
   lint:
     cmds:
-      - uv run ruff check --fix --select I
+      - cd backend && uv run ruff check --fix --select I
 
   test:
     cmds:
       - ./.venv/bin/pytest ./tests -vv
 
+  run:
+    cmds:
+      - uv run manage.py run
+
   publish:
     cmds:
-      - task: lint
       - git add .
       - git commit -m "{{.CLI_ARGS}}"
       - git push origin $(git branch --show-current)

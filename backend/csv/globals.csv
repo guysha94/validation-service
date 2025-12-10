@@ -1,0 +1,11 @@
+Parameter,Value,description
+DAC_DAR ratio,0.2,
+show boss intro,2,1- play intro only on first time | 2- play intro always (in every transition into trail) | 3- do not play intro
+barrier change state,50%,"barrier changes to damaged state, HB color switches to orange"
+HB change state,50%,HB color switches to flashing red
+UltraMoveMinSteps,50,
+SkipFlagByKingdom,1,Tap to skip function is available only for users above this kingdom
+AutoSkipMinSteps,15,a minimal steps value to activate skip on auto spin
+AutoSkipDoubleDashMinSteps,15,a minimal steps value to activate skip on 'Double Dash' when playing on auto spin
+AutoSkipMegaMoveMinSteps,15,a minimal steps value to activate skip on 'Mega Move' when playing on auto spin
+SkipEffectHexColor,f50707,hex color value that determines the color of the skip effect
