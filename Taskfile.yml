@@ -1,0 +1,17 @@
+version: '3'
+
+tasks:
+  lint:
+    cmds:
+      - uv run ruff check --fix --select I
+
+  test:
+    cmds:
+      - ./.venv/bin/pytest ./tests -vv
+
+  publish:
+    cmds:
+      - task: lint
+      - git add .
+      - git commit -m "{{.CLI_ARGS}}"
+      - git push origin $(git branch --show-current)
