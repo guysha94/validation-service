@@ -9,9 +9,17 @@ tasks:
     cmds:
       - ./.venv/bin/pytest ./tests -vv
 
+  add-migration:
+    cmds:
+      - cd backend && uv run alembic revision --autogenerate -m "{{.CLI_ARGS}}"
+
+  migrate:
+    cmds:
+      - cd backend && uv run alembic upgrade head
+
   run:
     cmds:
-      - uv run manage.py run
+      - cd backend && uv run manage.py run
 
   publish:
     cmds:

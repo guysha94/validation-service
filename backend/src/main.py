@@ -1,15 +1,13 @@
-from logging import DEBUG
-
-import uvicorn
-from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from loguru import logger
+from fastapi.responses import RedirectResponse
+from python_sdk.application.api import API
 
-from src.models import ValidateRequest, ValidateResponse, CreateRulesRequest, CreateRulesResponse
+from .conf import settings
+from .router import router
 
-api = FastAPI(
-
+api = API(
     name="Validation Service",
+    version="0.0.1",
     debug=True,
     init_postgres=True,
 )
@@ -23,50 +21,20 @@ api.add_middleware(
 )
 
 
-@api.get("/health", tags=["Health"], summary="Health Check Endpoint")
-async def health_check():
-    """
-    Health Check Endpoint to verify that the service is running.
-    """
-    logger.info("Health check endpoint called.")
-    return {"status": "ok"}
-
-
-@api.get("/")
+@api.get("/", response_class=RedirectResponse, summary="Redirect to Docs", status_code=302)
 async def root():
-    return {"message": "Welcome to the Validation Service API"}
+    return RedirectResponse(url="/docs")
 
 
-@api.post("/api/validate", tags=["Validation"], summary="Validate Data Endpoint")
-async def validate_request(req: ValidateRequest) -> ValidateResponse:
+api.include_router(router)
 
-
-    logger.info(f"Received validation request: {req}")
-
-    return ValidateResponse(status="valid", errors=[])
-
-
-
-@api.post("/api/create_rules", tags=["Rules"], summary="Create Rule Endpoint")
-async def create_rule(req: CreateRulesRequest) -> CreateRulesResponse:
-    logger.info(f"Create rule endpoint called with: {req}")
-
-    dummy_response_id = [f"rule_{i}" for i in range(len(req.rules))]
-
-    return CreateRulesResponse(
-        success=True,
-        created_rule_ids=dummy_response_id,
-    )
 
 def main():
 
-    uvicorn.run(
-        f"{__name__}:api",
-
-        host="0.0.0.0",
-        port=3001,
-        reload=True,
-        log_level=DEBUG,
-        workers=1,
-        use_colors=True,
+    api.run(
+        app_path=f"{__name__}:api",
+        host=settings.api.host,
+        port=settings.api.port,
+        reload=settings.debug,
+        log_level=settings.log_level,
     )

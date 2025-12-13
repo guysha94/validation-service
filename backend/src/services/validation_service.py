@@ -1,11 +1,11 @@
 import duckdb
 import pandas as pd
 
-from src.models import ValidateResponse
-from src.services.db_service import DbService
-from src.services.google_sheets_service import GoogleSheetsService
+from ..validations.models import ValidateResponse
+from .db_service import DbService
+from .google_sheets_service import GoogleSheetsService
 
-conn = duckdb.connect(database=':memory:')
+conn = duckdb.connect(database=":memory:")
 
 
 class ValidationService(object):
