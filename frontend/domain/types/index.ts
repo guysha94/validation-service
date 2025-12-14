@@ -1,5 +1,6 @@
 import {type LucideIcon} from "lucide-react";
 
+
 export type  Rule = {
     name: string;
     error_message: string;
@@ -12,7 +13,9 @@ export type FormData = {
 };
 
 export type SideBarItem = {
+    id: string;
     title: string;
+    type: string;
     url: string;
     icon?: LucideIcon | null | undefined;
 };

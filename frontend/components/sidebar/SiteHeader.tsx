@@ -1,9 +1,12 @@
 "use client"
-import {Button} from "@/components/ui/button"
 import {Separator} from "@/components/ui/separator"
 import {SidebarTrigger} from "@/components/ui/sidebar"
+import {useValidationsStore} from "~/store";
+import {useShallow} from "zustand/react/shallow";
 
 export default function SiteHeader() {
+
+    const {currentEvent} = useValidationsStore(useShallow((state) => state));
     return (
         <header
             className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
@@ -13,7 +16,7 @@ export default function SiteHeader() {
                     orientation="vertical"
                     className="mx-2 data-[orientation=vertical]:h-4"
                 />
-                <h1 className="text-base font-medium">Tournaments V2</h1>
+                <h1 className="text-base font-medium">{currentEvent?.label}</h1>
                 {/*<div className="ml-auto flex items-center gap-2">*/}
                 {/*    <Button variant="ghost" asChild size="sm" className="hidden sm:flex">*/}
                 {/*        <a*/}

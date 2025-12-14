@@ -152,6 +152,8 @@ export function AppSidebar({session, ...props}: AppSidebarProps) {
     const items = useMemo(() => {
 
         return validations.map((validation) => ({
+            id: validation.id,
+            type: validation.event_type,
             title: validation.label,
             url: `/validations/${validation.id}`,
             icon: (Icons[validation.icon as keyof typeof Icons] || BadgeQuestionMark) as LucideIcon,

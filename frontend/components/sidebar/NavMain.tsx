@@ -1,5 +1,5 @@
 "use client"
-
+import {useCallback} from "react";
 import {
     SidebarGroup,
     SidebarGroupContent,
@@ -8,38 +8,42 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import {SideBarItem} from "~/domain";
+import {useValidationsStore} from "~/store";
+import {useShallow} from 'zustand/react/shallow'
+import {Plus} from "lucide-react";
+import {Button} from "~/components/ui/button";
 
 export default function NavMain({
-                            items,
-                        }: {
+                                    items,
+                                }: {
     items: SideBarItem[]
 }) {
+
+    const {addFormOpen, toggleAddFormOpen, setCurrentEvent} = useValidationsStore(useShallow((state) => state));
+
+    const onSelectedEvent = useCallback((eventType: { id: string, type: string, label: string } | null | undefined) => {
+        setCurrentEvent(eventType);
+    }, [setCurrentEvent]);
+
+
     return (
         <SidebarGroup>
             <SidebarGroupContent className="flex flex-col gap-2">
-                {/*<SidebarMenu>*/}
-                {/*    <SidebarMenuItem className="flex items-center gap-2">*/}
-                {/*        <SidebarMenuButton*/}
-                {/*            tooltip="Quick Create"*/}
-                {/*            className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"*/}
-                {/*        >*/}
-                {/*            <CirclePlus/>*/}
-                {/*            <span>Quick Create</span>*/}
-                {/*        </SidebarMenuButton>*/}
-                {/*        <Button*/}
-                {/*            size="icon"*/}
-                {/*            className="size-8 group-data-[collapsible=icon]:opacity-0"*/}
-                {/*            variant="outline"*/}
-                {/*        >*/}
-                {/*            <Mail/>*/}
-                {/*            <span className="sr-only">Inbox</span>*/}
-                {/*        </Button>*/}
-                {/*    </SidebarMenuItem>*/}
-                {/*</SidebarMenu>*/}
+
                 <SidebarMenu>
+                    <SidebarMenuItem className="cursor-pointer" onClick={toggleAddFormOpen}>
+                        <Button
+                            variant="outline"
+                            className="w-full justify-start cursor-pointer"
+                        >
+
+                            <Plus/>
+                            <span>New Event</span>
+                        </Button>
+                    </SidebarMenuItem>
                     {items.map((item) => (
-                        <SidebarMenuItem key={item.title}>
-                            <SidebarMenuButton tooltip={item.title}>
+                        <SidebarMenuItem key={item.title} className="cursor-pointer">
+                            <SidebarMenuButton className="cursor-pointer" tooltip={item.title} onClick={()=>onSelectedEvent({id: item.id, type: item.type, label: item.title})} >
                                 {item.icon && <item.icon/>}
                                 <span>{item.title}</span>
                             </SidebarMenuButton>
