@@ -1,8 +1,8 @@
 """'init db'
 
-Revision ID: e83562c1f726
+Revision ID: 1e3f792b40a9
 Revises:
-Create Date: 2025-12-13 14:50:06.497732
+Create Date: 2025-12-14 10:52:43.958598
 
 """
 from typing import Sequence, Union
@@ -13,7 +13,7 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision: str = "e83562c1f726"
+revision: str = "1e3f792b40a9"
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -28,12 +28,16 @@ def upgrade() -> None:
     sa.Column("email", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column("password", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column("disabled", sa.Boolean(), nullable=False),
+    sa.Column("updated_at", sa.DateTime(), nullable=False),
+    sa.Column("created_at", sa.DateTime(), nullable=False),
     sa.PrimaryKeyConstraint("id")
     )
     op.create_index(op.f("ix_users_email"), "users", ["email"], unique=False)
     op.create_table("validations",
     sa.Column("id", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column("event_type", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column("updated_at", sa.DateTime(), nullable=False),
+    sa.Column("created_at", sa.DateTime(), nullable=False),
     sa.PrimaryKeyConstraint("id")
     )
     op.create_table("rules",
@@ -42,6 +46,8 @@ def upgrade() -> None:
     sa.Column("name", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column("error_message", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column("query", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column("updated_at", sa.DateTime(), nullable=False),
+    sa.Column("created_at", sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(["validation_id"], ["validations.id"], ),
     sa.PrimaryKeyConstraint("id")
     )
@@ -51,6 +57,8 @@ def upgrade() -> None:
     sa.Column("access_token", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column("token_type", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column("user_id", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column("updated_at", sa.DateTime(), nullable=False),
+    sa.Column("created_at", sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(["user_id"], ["users.id"], ),
     sa.PrimaryKeyConstraint("id")
     )

@@ -1,3 +1,4 @@
+from datetime import datetime, UTC
 from typing import Union
 
 from python_sdk.domain.base import BaseModel
@@ -25,6 +26,18 @@ class Rule(SQLModel, table=True):
     error_message: str = Field(..., title="Error Message", description="The error message associated with the rule.")
 
     query: str = Field(..., title="Query", description="The query string for the rule.")
+
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        title="Updated At",
+        description="The timestamp when the validation was last updated."
+    )
+
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        title="Created At",
+        description="The timestamp when the validation was created."
+    )
 
 
 

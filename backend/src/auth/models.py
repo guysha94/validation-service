@@ -1,3 +1,4 @@
+from datetime import datetime, UTC
 from typing import Optional, Self
 
 from python_sdk.domain.base import BaseModel
@@ -11,7 +12,6 @@ class TokenData(BaseModel):
     id: Optional[str] = Field(default=None, title="User ID", description="The user ID.")
     name: Optional[str] = Field(default=None, title="User Name", description="The user's name.")
     email: Optional[str] = Field(default=None, title="Email", description="The user's email.")
-
 
 
 class LoginRequest(BaseModel):
@@ -50,6 +50,17 @@ class Token(SQLModel, table=True):
         description="The user's ID.",
         foreign_key="users.id",
         index=True,
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        title="Updated At",
+        description="The timestamp when the validation was last updated."
+    )
+
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        title="Created At",
+        description="The timestamp when the validation was created."
     )
 
     def to_show(self) -> TokenShow:

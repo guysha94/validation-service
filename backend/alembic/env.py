@@ -8,7 +8,10 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import SQLModel
-
+from src.auth.models import *
+from src.rules.models import *
+from src.users.models import *
+from src.validations.models import *
 from src.conf import settings
 
 # this is the Alembic Config object, which provides

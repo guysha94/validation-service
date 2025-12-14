@@ -1,3 +1,4 @@
+from datetime import datetime, UTC
 from typing import Optional, Self
 
 from python_sdk.domain.base import BaseModel
@@ -16,14 +17,25 @@ class UserShow(BaseModel):
     name: str = Field(..., title="User Name", description="The user's name.")
     email: str = Field(..., title="Email", description="The email address of the user.")
     disabled: bool = Field(..., title="Disabled", description="Indicates whether the user is disabled.")
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        title="Updated At",
+        description="The timestamp when the validation was last updated."
+    )
+
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        title="Created At",
+        description="The timestamp when the validation was created."
+    )
+
 
 class UserUpdate(BaseModel):
     name: Optional[str] = Field(default=None, title="User Name", description="The user's name.")
     email: Optional[str] = Field(default=None, title="Email", description="The email address of the user.")
     password: Optional[str] = Field(default=None, title="User Password", description="The user's password.")
-    disabled: Optional[bool] = Field(default=None, title="Disabled", description="Indicates whether the user is disabled.")
-
-
+    disabled: Optional[bool] = Field(default=None, title="Disabled",
+                                     description="Indicates whether the user is disabled.")
 
 
 class User(SQLModel, table=True):
@@ -43,12 +55,26 @@ class User(SQLModel, table=True):
 
     disabled: bool = Field(default=False, title="Disabled", description="Indicates whether the user is disabled.")
 
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        title="Updated At",
+        description="The timestamp when the validation was last updated."
+    )
+
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        title="Created At",
+        description="The timestamp when the validation was created."
+    )
+
     def to_show(self) -> UserShow:
         return UserShow(
             id=self.id,
             name=self.name,
             email=self.email,
-            disabled=self.disabled
+            disabled=self.disabled,
+            updated_at=self.updated_at,
+            created_at=self.created_at
         )
 
     @classmethod
@@ -57,4 +83,13 @@ class User(SQLModel, table=True):
             name=user_create.name,
             email=user_create.email,
             password=user_create.password
+        )
+
+    @classmethod
+    def from_update(cls, user_create: UserUpdate) -> Self:
+        return cls(
+            name=user_create.name,
+            email=user_create.email,
+            password=user_create.password,
+            updated_at=datetime.now(UTC),
         )
