@@ -1,9 +1,9 @@
 from typing import Optional
 
-from sqlmodel import select, delete
+from sqlmodel import delete, select
 
-from .models import TokenCreate, Token
 from ..db.sqlite_client import get_session
+from .models import Token, TokenCreate
 
 
 class TokenCRUD(object):

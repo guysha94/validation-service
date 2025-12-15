@@ -1,7 +1,7 @@
-from sqlmodel import select, update, delete
+from sqlmodel import delete, select, update
 
-from .models import User, UserUpdate, UserCreate
 from ..db.sqlite_client import get_session
+from .models import User, UserCreate, UserUpdate
 
 
 class UserCRUD(object):

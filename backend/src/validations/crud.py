@@ -1,10 +1,10 @@
 from typing import Optional
 
 from fastapi import HTTPException
-from sqlmodel import select, delete
+from sqlmodel import delete, select
 
-from .models import Validation, ValidationCreate, ValidationUpdate
 from ..db.sqlite_client import get_session
+from .models import Validation, ValidationCreate, ValidationUpdate
 
 
 class ValidationCRUD(object):

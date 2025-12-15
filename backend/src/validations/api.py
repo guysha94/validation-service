@@ -2,7 +2,13 @@ from fastapi import APIRouter, HTTPException
 from loguru import logger
 
 from .crud import ValidationCRUD
-from .models import ValidateRequest, ValidateResponse, Validation, ValidationCreate, ValidationUpdate
+from .models import (
+    ValidateRequest,
+    ValidateResponse,
+    Validation,
+    ValidationCreate,
+    ValidationUpdate,
+)
 
 router = APIRouter(prefix="/api/validations", tags=["Validations"])
 

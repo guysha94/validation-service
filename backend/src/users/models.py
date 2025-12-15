@@ -1,8 +1,8 @@
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Optional, Self
 
 from python_sdk.domain.base import BaseModel
-from python_sdk.utils import Crypto
+from python_sdk.utils.crypto import uuidv7
 from sqlmodel import Field, SQLModel
 
 
@@ -42,7 +42,7 @@ class User(SQLModel, table=True):
 
     __tablename__ = "users"
     id: str = Field(
-        default_factory=Crypto.uuidv7,
+        default_factory=uuidv7,
         primary_key=True,
         title="User ID",
         description="The unique identifier for the user.")

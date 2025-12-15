@@ -1,6 +1,10 @@
+from typing import Optional, Union
+
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from python_sdk.application.api import API
+from python_sdk.conf import configure_logger
+from python_sdk.utils.optimizations import optimize_gc
 
 from .conf import settings
 from .router import router
@@ -29,12 +33,24 @@ async def root():
 api.include_router(router)
 
 
-def main():
+def main(
+        *,
+        host: Optional[str] = None,
+        port: Optional[int] = None,
+        reload: Optional[bool] = None,
+        workers: int = 1,
+        log_level: Optional[Union[str, int]] = None,
+
+):
+
+    optimize_gc()
+    configure_logger(enqueue=True)
 
     api.run(
         app_path=f"{__name__}:api",
-        host=settings.api.host,
-        port=settings.api.port,
-        reload=settings.debug,
-        log_level=settings.log_level,
+        host=host or settings.api.host,
+        port=port or settings.api.port,
+        reload=reload if reload is not None else settings.debug,
+        log_level=log_level or settings.log_level,
+        workers=workers,
     )

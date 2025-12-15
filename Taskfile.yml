@@ -1,6 +1,21 @@
 version: '3'
 
+vars:
+  ALEMBIC: alembic
+  VERSIONS_DIR: migrations/versions
+  BACKEND_DIR: backend
+  FRONTEND_DIR: frontend
+
 tasks:
+
+  install:
+    dir: '{{.BACKEND_DIR}}'
+    cmds:
+      - rm -rm ./.venv || true
+      - uv venv .venv
+      - uv sync
+      - cd '../{{.FRONTEND_DIR}}' && pnpm install
+
   lint:
     cmds:
       - cd backend && uv run ruff check --fix --select I
@@ -9,20 +24,48 @@ tasks:
     cmds:
       - ./.venv/bin/pytest ./tests -vv
 
-  add-migration:
+  migration:add:
+    desc: Create a new Alembic migration (autogenerate) with message.
+    dir: backend
     cmds:
-      - cd backend && uv run alembic revision --autogenerate -m "{{.CLI_ARGS}}"
+      - '{{.ALEMBIC}} revision --autogenerate -m "{{.CLI_ARGS}}"'
+    requires:
+      vars: [ ] # keep; message is passed via -- ...
+    silent: false
+
+  migration:remove:
+    desc: Downgrade DB by one revision and delete the latest migration file.
+    dir: backend
+    cmds:
+      # 1) downgrade the DB one step
+      - '{{.ALEMBIC}} downgrade -1'
+      # 2) find the current "head" revision id and remove the corresponding file
+      - |
+        set -euo pipefail
+        rev="$({{.ALEMBIC}} heads -q | awk '{print $1}' | head -n1)"
+        test -n "$rev"
+        rm -f "{{.VERSIONS_DIR}}/${rev}_"*.py
+    silent: false
 
   migrate:
     cmds:
       - cd backend && uv run alembic upgrade head
 
+  backend:
+    cmds:
+      - cd backend && uv run manage.py -r
+
+  frontend:
+    cmds:
+      - cd frontend && pnpm dev
+
   run:
     cmds:
-      - cd backend && uv run manage.py run
+      - overmind start -f Procfile
 
   publish:
     cmds:
+      - task: lint
       - git add .
       - git commit -m "{{.CLI_ARGS}}"
       - git push origin $(git branch --show-current)

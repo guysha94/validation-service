@@ -1,8 +1,8 @@
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Union
 
 from python_sdk.domain.base import BaseModel
-from python_sdk.utils import Crypto
+from python_sdk.utils.crypto import uuidv7
 from sqlmodel import Field, SQLModel
 
 
@@ -10,7 +10,7 @@ class Rule(SQLModel, table=True):
 
     __tablename__ = "rules"
 
-    id: str = Field(default_factory=Crypto.uuidv7, primary_key=True, title="Token ID",
+    id: str = Field(default_factory=uuidv7, primary_key=True, title="Token ID",
                     description="The unique identifier for the token.")
 
     validation_id: str = Field(

@@ -6,7 +6,6 @@ from .rules.api import router as rules_router
 from .users.api import router as users_router
 from .validations.api import router as validations_router
 
-
 router = APIRouter()
 
 router.include_router(health_router)

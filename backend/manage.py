@@ -1,5 +1,7 @@
+from typing import Annotated, Optional
 
 import typer
+from python_sdk.conf.logger import LogLevel
 
 cli = typer.Typer(help="CLI tool", add_completion=True, no_args_is_help=True)
 
@@ -23,7 +25,16 @@ def shell() -> None:
 
 
 @cli.command(name="run", help="Run the background worker.")
-def worker() -> None:
+def run(
+        host: Annotated[Optional[str], typer.Option("-h", "--host", help="Host to bind to.")] = "0.0.0.0",
+        port: Annotated[Optional[int], typer.Option("-p", "--port", help="Port to bind to.")] = 3000,
+        reload: Annotated[Optional[bool], typer.Option("-r", "--reload", is_flag=True, help="Enable "
+                                                                                            "auto-reload.")] = False,
+        workers: Annotated[int, typer.Option("-w", "--workers", help="Number of worker processes.")] = 1,
+        log_level: Annotated[
+            Optional[LogLevel], typer.Option("-l", "--log-level", help="Logging level.")] = LogLevel.INFO,
+
+) -> None:
     from src.main import main
 
     main()

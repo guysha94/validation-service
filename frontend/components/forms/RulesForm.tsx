@@ -10,7 +10,6 @@ import {Label} from "~/components/ui/label";
 import {Card, CardContent, CardHeader, CardTitle,} from "~/components/ui/card";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage,} from "~/components/ui/form";
 import {FormData} from "~/domain";
-import {useSession} from "next-auth/react"
 import {validationsCollection} from "~/db/collections";
 
 import {useLiveQuery} from "@tanstack/react-db";
@@ -20,7 +19,7 @@ export function RulesForm() {
     const {data: validations = [], isLoading} = useLiveQuery(
         (q) => q.from({validation: validationsCollection}),
     )
-    const session = useSession();
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitMessage, setSubmitMessage] = useState<{
         type: "success" | "error";
@@ -79,7 +78,7 @@ export function RulesForm() {
     if (isLoading) {
         return <div>Loading...</div>;
     }
-    console.log(validations);
+
     return (<Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 

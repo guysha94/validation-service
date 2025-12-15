@@ -5,14 +5,13 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "aiosqlite>=0.21.0",
+    "aiosqlite>=0.22.0",
     "alembic>=1.17.2",
     "asyncmy>=0.2.10",
     "bcrypt>=5.0.0",
     "cryptography>=46.0.3",
     "duckdb>=1.4.3",
     "fastapi>=0.124.4",
-    "faststream[cli,confluent,rabbit,redis]>=0.6.4",
     "loguru>=0.7.3",
     "pandas>=2.3.3",
     "pwdlib[argon2]>=0.3.0",
@@ -82,7 +81,8 @@ exclude = [
     "dist/",
     "venv/",
     "\\.venv/",
-    "tests/helpers/"
+    "tests/helpers/",
+    "alembic/",
 ]
 
 
@@ -109,6 +109,8 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
+    ".venv",
+    "alembic",
 ]
 line-length = 88
 indent-width = 4
@@ -153,8 +155,6 @@ invalid-type-form = "ignore"
 no-matching-overload = "ignore"
 missing-argument = "ignore"
 
-[tool.uv.sources]
-python-sdk = { git = "https://github.com/shakedguy/python-sdk.git" }
 
 [dependency-groups]
 dev = [
@@ -187,6 +187,10 @@ script_location = "%(here)s/alembic"
 prepend_sys_path = [
     "."
 ]
+
+[tool.uv.sources]
+python-sdk = { git = "https://github.com/shakedguy/python-sdk.git" }
+
 
 # timezone to use when rendering the date within the migration file
 # as well as the filename.

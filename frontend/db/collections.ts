@@ -13,7 +13,16 @@ export const validationsCollection = createCollection(
         queryKey: ['validations'],
         queryFn: () => api.validations.getAll(),
         getKey: (item) => item.id,
-    }));
+        onInsert: ({transaction}) => {
+            const mutation = transaction.mutations[0];
+            return api.validations.create(mutation.modified);
+        },
+        onUpdate: ({transaction}) => {
+            const mutation = transaction.mutations[0];
+            return api.validations.update(mutation.original.id, mutation.changes);
+        },
+    }),
+);
 
 export const rulesCollection = createCollection(
     queryCollectionOptions({

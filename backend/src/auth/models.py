@@ -1,8 +1,8 @@
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Optional, Self
 
 from python_sdk.domain.base import BaseModel
-from python_sdk.utils import Crypto
+from python_sdk.utils.crypto import uuidv7
 from sqlmodel import Field, SQLModel
 
 from ..users.models import UserShow
@@ -40,7 +40,7 @@ class TokenCreate(BaseModel):
 class Token(SQLModel, table=True):
 
     __tablename__ = "tokens"
-    id: str = Field(default_factory=Crypto.uuidv7, primary_key=True, title="Token ID",
+    id: str = Field(default_factory=uuidv7, primary_key=True, title="Token ID",
                     description="The unique identifier for the token.")
     access_token: str = Field(..., title="Access Token", description="The access token string.", index=True)
     token_type: str = Field(..., title="Token Type", description="The type of the token.")

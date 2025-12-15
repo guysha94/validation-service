@@ -19,7 +19,7 @@ export default function NavMain({
     items: SideBarItem[]
 }) {
 
-    const {addFormOpen, toggleAddFormOpen, setCurrentEvent} = useValidationsStore(useShallow((state) => state));
+    const {toggleAddFormOpen, setCurrentEvent} = useValidationsStore(useShallow((state) => state));
 
     const onSelectedEvent = useCallback((eventType: { id: string, type: string, label: string } | null | undefined) => {
         setCurrentEvent(eventType);

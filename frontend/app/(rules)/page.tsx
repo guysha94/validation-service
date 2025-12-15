@@ -1,5 +1,6 @@
 import {ProtectedPage} from "~/components/auth";
 import RulesCard from "~/components/RulesCard";
+import NewEventDialog from "~/components/NewEventDialog";
 
 export default async function Home() {
 
@@ -11,6 +12,7 @@ export default async function Home() {
                     <RulesCard/>
                 </div>
             </div>
+            <NewEventDialog/>
         </ProtectedPage>
     );
 }

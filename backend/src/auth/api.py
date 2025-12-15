@@ -3,15 +3,15 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from jwt.exceptions import InvalidTokenError
+from loguru import logger
 
-from .auth_bearer import JWTBearer
-from .crud import TokenCRUD
-from .models import LoginRequest, TokenData, TokenCreate, TokenShow, LoginResponse
 from ..conf import settings
-from ..services import AuthServiceDep, AuthService
+from ..services import AuthService, AuthServiceDep
 from ..users.crud import UserCRUD
 from ..users.models import User, UserCreate, UserShow, UserUpdate
-from loguru import logger
+from .auth_bearer import JWTBearer
+from .crud import TokenCRUD
+from .models import LoginRequest, LoginResponse, TokenCreate, TokenData, TokenShow
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 

@@ -9,6 +9,8 @@ __pycache__/
 **/tmp.py
 **/.vscode/
 **/.venv/
+**/*.sqlite3
+**/*.db
 # Distribution / packaging
 .Python
 build/

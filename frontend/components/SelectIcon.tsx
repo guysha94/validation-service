@@ -6,35 +6,35 @@ import {Button} from "@/components/ui/button"
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList,} from "@/components/ui/command"
 import {Popover, PopoverContent, PopoverTrigger,} from "@/components/ui/popover"
 import _ from "lodash";
+import {ControllerRenderProps} from "react-hook-form";
 
 const iconsList = Object.keys(icons);
 
+type SelectIconProps = {
+    field: ControllerRenderProps<any, any>;
+}
 
-function SelectIcon() {
+function SelectIcon({field}: SelectIconProps) {
 
-    const [open, setOpen] = useState(false)
-    const [value, setValue] = useState("");
-
+    const [open, setOpen] = useState<boolean>(false);
 
     return (
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={setOpen} modal>
             <PopoverTrigger asChild>
                 <Button
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className="w-[250px] justify-between cursor-pointer"
+                    className="w-full justify-between cursor-pointer"
                 >
-                    {value
-                        ? iconsList.find((icon) => icon === value)
-                        : "Select Icon"}
+                    {_.startCase(field.value || "Select Icon")}
                     <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[250px] p-0">
+            <PopoverContent className="w-full p-0">
                 <Command>
                     <CommandInput placeholder="Search Icon"/>
-                    <CommandList>
+                    <CommandList className="max-h-[300px] overflow-y-auto overflow-x-hidden">
                         <CommandEmpty>No icons found.</CommandEmpty>
                         <CommandGroup>
                             {iconsList.map((icon, idx) => (
@@ -42,14 +42,14 @@ function SelectIcon() {
                                     key={idx}
                                     value={icon}
                                     onSelect={(currentValue) => {
-                                        setValue(currentValue === value ? "" : currentValue)
+                                        field.onChange(currentValue === field.value ? "" : currentValue)
                                         setOpen(false)
                                     }}
                                 >
                                     <CheckIcon
                                         className={cn(
                                             "mr-2 h-4 w-4",
-                                            value === icon ? "opacity-100" : "opacity-0"
+                                            field.value === icon ? "opacity-100" : "opacity-0"
                                         )}
                                     />
                                     {
