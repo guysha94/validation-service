@@ -1,9 +1,39 @@
 from datetime import UTC, datetime
-from typing import Union
+from typing import Optional, Self, Union
 
 from python_sdk.domain.base import BaseModel
 from python_sdk.utils.crypto import uuidv7
 from sqlmodel import Field, SQLModel
+
+
+class RuleCreate(BaseModel):
+
+    validation_id: str = Field(
+        ...,
+        title="Validation ID",
+        description="The ID of the associated validation.",
+    )
+
+    name: str = Field(..., title="Name", description="The name of the rule.")
+
+    error_message: str = Field(..., title="Error Message", description="The error message associated with the rule.")
+
+    query: str = Field(..., title="Query", description="The query string for the rule.")
+
+
+class RuleUpdate(BaseModel):
+    name: Optional[str] = Field(default=None, title="Name", description="The name of the rule.")
+
+    error_message: Optional[str] = Field(default=None, title="Error Message",
+                                         description="The error message associated with the rule.")
+
+    query: Optional[str] = Field(default=None, title="Query", description="The query string for the rule.")
+
+
+class RuleUpdateMany(BaseModel):
+
+    id: str = Field(..., title="ID", description="The ID of the rule.")
+    changes: RuleUpdate = Field(..., title="Changes", description="The changes to be applied to the rule.")
 
 
 class Rule(SQLModel, table=True):
@@ -39,8 +69,14 @@ class Rule(SQLModel, table=True):
         description="The timestamp when the validation was created."
     )
 
-
-
+    @classmethod
+    def from_create(cls, create: RuleCreate) -> Self:
+        return cls(
+            validation_id=create.validation_id,
+            name=create.name,
+            error_message=create.error_message,
+            query=create.query
+        )
 
 
 class CreateRulesRequest(BaseModel):

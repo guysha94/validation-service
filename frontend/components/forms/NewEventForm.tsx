@@ -16,7 +16,7 @@ const formSchema = z.object({
     type: z.string().min(2, {message: "Event type is required"}),
     title: z.string(),
     icon: z.string(),
-})
+});
 
 export default function NewEventForm() {
 

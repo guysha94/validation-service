@@ -12,6 +12,8 @@ import {useValidationsStore} from "~/store";
 import {useShallow} from 'zustand/react/shallow'
 import {Plus} from "lucide-react";
 import {Button} from "~/components/ui/button";
+import {useRouter} from 'next/navigation'
+import { useParams } from 'next/navigation'
 
 export default function NavMain({
                                     items,
@@ -19,12 +21,16 @@ export default function NavMain({
     items: SideBarItem[]
 }) {
 
+    const {slug} = useParams();
+    const router = useRouter();
     const {toggleAddFormOpen, setCurrentEvent} = useValidationsStore(useShallow((state) => state));
 
     const onSelectedEvent = useCallback((eventType: { id: string, type: string, label: string } | null | undefined) => {
         setCurrentEvent(eventType);
-    }, [setCurrentEvent]);
-
+        if (eventType) {
+            router.push(`/events/${eventType.type.toLowerCase()}`);
+        }
+    }, [setCurrentEvent, router]);
 
     return (
         <SidebarGroup>
@@ -43,7 +49,12 @@ export default function NavMain({
                     </SidebarMenuItem>
                     {items.map((item) => (
                         <SidebarMenuItem key={item.title} className="cursor-pointer">
-                            <SidebarMenuButton className="cursor-pointer" tooltip={item.title} onClick={()=>onSelectedEvent({id: item.id, type: item.type, label: item.title})} >
+                            <SidebarMenuButton
+                                className="cursor-pointer"
+                                tooltip={item.title}
+                                isActive={slug?.includes(item.type.toLowerCase())}
+                                onClick={()=>onSelectedEvent({id: item.id, type: item.type, label: item.title})}
+                            >
                                 {item.icon && <item.icon/>}
                                 <span>{item.title}</span>
                             </SidebarMenuButton>

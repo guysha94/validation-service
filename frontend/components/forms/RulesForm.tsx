@@ -1,23 +1,46 @@
 "use client";
 
 import {useFieldArray, useForm} from "react-hook-form";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Plus, Trash2} from "lucide-react";
 import {Button} from "~/components/ui/button";
 import {Input} from "~/components/ui/input";
-import {Textarea} from "~/components/ui/textarea";
 import {Label} from "~/components/ui/label";
 import {Card, CardContent, CardHeader, CardTitle,} from "~/components/ui/card";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage,} from "~/components/ui/form";
-import {FormData} from "~/domain";
-import {validationsCollection} from "~/db/collections";
+import {SqlQuerySchema} from "~/domain";
+import {rulesCollection} from "~/db/collections";
+import {Spinner} from "~/components/ui/spinner";
+import {eq, useLiveQuery} from "@tanstack/react-db";
+import SQLEditor from "~/components/SQLEditor";
+import * as z from "zod";
+import {zodResolver} from "@hookform/resolvers/zod";
+import dynamic from "next/dynamic";
+import {rulesSchema} from "~/db/schemas";
+import _ from 'lodash';
 
-import {useLiveQuery} from "@tanstack/react-db";
+type RulesFormProps = {
+    eventType: string;
+    eventId: string;
+};
 
+const ruleSchema = z.object({
+    id: z.string().nullable().optional().default(""),
+    name: z.string().min(1, {message: "Rule name is required"}),
+    error_message: z.string().min(1, {message: "Error message is required"}),
+    query: SqlQuerySchema,
+});
 
-export function RulesForm() {
-    const {data: validations = [], isLoading} = useLiveQuery(
-        (q) => q.from({validation: validationsCollection}),
+const formSchema = z.object({
+    rules: z.array(ruleSchema).min(1, {message: "At least one rule is required"}),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
+export function RulesFormComponent({eventType, eventId}: RulesFormProps) {
+    const {data: rules = [], isLoading} = useLiveQuery(
+        (q) => q.from({rules: rulesCollection})
+            .where(({rules}) => eq(rules.validation_id, eventId)),
     )
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,12 +49,13 @@ export function RulesForm() {
         message: string;
     } | null>(null);
 
-    const form = useForm<FormData>({
+    const form = useForm({
+        resolver: zodResolver(formSchema),
+        mode: "onChange",
         defaultValues: {
-            event_type: "",
             rules: [{name: "", error_message: "", query: ""}],
         },
-        mode: "onChange",
+
     });
 
     const {fields, append, remove} = useFieldArray({
@@ -44,28 +68,46 @@ export function RulesForm() {
         setSubmitMessage(null);
 
         try {
-            const response = await fetch("http://localhost:3001/api/create_rules", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
+            const existingQueries = rules.map(r => r.query);
+            const toInsert = data.rules.filter(r => !r.id && !existingQueries.includes(r.query));
+            const toUpdate = data.rules.filter(r => r.id && !existingQueries.includes(r.query));
+            const tasks: Promise<any>[] = [];
+            if (toInsert.length) {
+                const insertTx = rulesCollection.insert(toInsert.map(r => rulesSchema.parse(r)));
+                tasks.push(insertTx.isPersisted.promise)
+
+            }
+
+
+            if (toUpdate.length) {
+                const updatedIds: string[] = _.intersection([
+                    rules.map(r => r.id),
+                    toUpdate.map(r => r.id)]
+                ).flat().filter(Boolean) as string[];
+
+                const updateTx = rulesCollection.update(updatedIds, (drafts) => {
+                    drafts.forEach((draft) => {
+                        const updated = toUpdate.find(r => r.id === draft.id);
+                        if (updated) {
+                            draft.name = updated.name;
+                            draft.error_message = updated.error_message;
+                            draft.query = updated.query;
+                        }
+                    })
+                });
+                tasks.push(updateTx.isPersisted.promise);
+            }
+
+            if (tasks.length > 0) {
+                await Promise.all(tasks);
+            }
+
+            setSubmitMessage({
+                type: "success",
+                message: "Rules saved successfully",
             });
 
-            const result = await response.json();
 
-            if (response.ok && result.success) {
-                setSubmitMessage({
-                    type: "success",
-                    message: `Successfully created ${result.created_rule_ids.length} rule(s)!`,
-                });
-                form.reset();
-            } else {
-                setSubmitMessage({
-                    type: "error",
-                    message: result.error || "Failed to create rules",
-                });
-            }
         } catch (error) {
             setSubmitMessage({
                 type: "error",
@@ -75,6 +117,32 @@ export function RulesForm() {
             setIsSubmitting(false);
         }
     };
+
+
+    const onRemove = async (index: number, id: string) => {
+        remove(index);
+        if (id) {
+            const tx = rulesCollection.delete(id);
+            await tx.isPersisted.promise;
+        }
+    };
+
+    useEffect(() => {
+
+        if (isLoading) return;
+        if (rules.length > 0) {
+            form.reset({
+                rules: rules.map((rule) => ({
+                    name: rule.name,
+                    error_message: rule.error_message,
+                    query: rule.query,
+                })),
+            });
+        }
+
+
+    }, [isLoading, rules, form]);
+
     if (isLoading) {
         return <div>Loading...</div>;
     }
@@ -82,29 +150,6 @@ export function RulesForm() {
     return (<Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 
-            <FormField
-                control={form.control}
-                name="event_type"
-                rules={{
-                    required: "Event type is required",
-                }}
-                render={({field}) => (
-                    <FormItem>
-                        <FormLabel>
-                            Event Type <span className="text-destructive">*</span>
-                        </FormLabel>
-                        <FormControl>
-                            <Input
-                                placeholder="e.g., user_registration, payment_processing"
-                                {...field}
-                            />
-                        </FormControl>
-                        <FormMessage/>
-                    </FormItem>
-                )}
-            />
-
-            {/* Rules Section */}
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <Label>
@@ -114,7 +159,7 @@ export function RulesForm() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => append({name: "", error_message: "", query: ""})}
+                        onClick={() => append({id: "", name: "", error_message: "", query: ""})}
                     >
                         <Plus className="h-4 w-4"/>
                         Add Rule
@@ -132,7 +177,7 @@ export function RulesForm() {
                                             type="button"
                                             variant="ghost"
                                             size="sm"
-                                            onClick={() => remove(index)}
+                                            onClick={() => onRemove(index, field.id)}
                                             className="text-destructive hover:text-destructive"
                                         >
                                             <Trash2 className="h-4 w-4"/>
@@ -194,10 +239,10 @@ export function RulesForm() {
                                                 Query <span className="text-destructive">*</span>
                                             </FormLabel>
                                             <FormControl>
-                                                <Textarea
+                                                <SQLEditor
+                                                    value={field.value}
+                                                    onChange={field.onChange}
                                                     placeholder="e.g., email LIKE '%@%.%'"
-                                                    rows={3}
-                                                    {...field}
                                                 />
                                             </FormControl>
                                             <FormMessage/>
@@ -210,14 +255,14 @@ export function RulesForm() {
                 </div>
             </div>
 
-            {/* Submit Button */}
+
             <div className="flex items-center justify-end pt-4">
-                <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? "Submitting..." : "Create Rules"}
+                <Button type="submit" disabled={isSubmitting} className="cursor-pointer">
+                    {isSubmitting && <Spinner/>}
+                    {isSubmitting ? "Saving..." : "Save"}
                 </Button>
             </div>
 
-            {/* Submit Message */}
             {submitMessage && (
                 <div
                     className={`p-4 rounded-md border ${
@@ -232,3 +277,10 @@ export function RulesForm() {
         </form>
     </Form>);
 }
+
+export const RulesForm = dynamic(() => Promise.resolve(RulesFormComponent), {
+    ssr: false,
+    loading: () => <div>Loading...</div>,
+});
+
+export default RulesForm;

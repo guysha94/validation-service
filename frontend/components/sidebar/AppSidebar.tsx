@@ -3,22 +3,7 @@
 import * as React from "react"
 import {ComponentProps, useMemo} from "react"
 import * as Icons from "lucide-react";
-import {
-    BadgeQuestionMark,
-    Camera,
-    ChartColumn,
-    Database,
-    FileSpreadsheet,
-    FileText,
-    Folder,
-    LayoutDashboard,
-    LayoutList,
-    type LucideIcon,
-    Search,
-    SearchCode,
-    Settings,
-    Users
-} from "lucide-react";
+import {BadgeQuestionMark, type LucideIcon, SearchCode} from "lucide-react";
 import NavMain from "./NavMain"
 import NavUser from "./NavUser"
 import {
@@ -35,104 +20,8 @@ import Link from 'next/link'
 import {useLiveQuery} from "@tanstack/react-db";
 import {validationsCollection} from "~/db/collections";
 import {SideBarItem} from "~/domain";
+import {Skeleton} from "@/components/ui/skeleton"
 
-const data = {
-    user: {
-        name: "shadcn",
-        email: "m@example.com",
-        avatar: "/avatars/shadcn.jpg",
-    },
-    navMain: [
-        {
-            title: "Dashboard",
-            url: "#",
-            icon: LayoutDashboard,
-        },
-        {
-            title: "Lifecycle",
-            url: "#",
-            icon: LayoutList,
-        },
-        {
-            title: "Analytics",
-            url: "#",
-            icon: ChartColumn,
-        },
-        {
-            title: "Projects",
-            url: "#",
-            icon: Folder,
-        },
-        {
-            title: "Team",
-            url: "#",
-            icon: Users,
-        },
-    ],
-    navClouds: [
-        {
-            title: "Capture",
-            icon: Camera,
-            isActive: true,
-            url: "#",
-            items: [
-                {
-                    title: "Active Proposals",
-                    url: "#",
-                },
-                {
-                    title: "Archived",
-                    url: "#",
-                },
-            ],
-        },
-        {
-            title: "Proposal",
-            icon: FileText,
-            url: "#",
-            items: [
-                {
-                    title: "Active Proposals",
-                    url: "#",
-                },
-                {
-                    title: "Archived",
-                    url: "#",
-                },
-            ],
-        },
-    ],
-    navSecondary: [
-        {
-            title: "Settings",
-            url: "#",
-            icon: Settings,
-        },
-        {
-            title: "Get Help",
-            url: "#",
-            icon: BadgeQuestionMark,
-        },
-        {
-            title: "Search",
-            url: "#",
-            icon: Search,
-        },
-    ],
-    documents: [
-        {
-            name: "Data Library",
-            url: "#",
-            icon: Database,
-        },
-        {
-            name: "Reports",
-            url: "#",
-            icon: FileSpreadsheet,
-        },
-
-    ],
-}
 
 type AppSidebarProps = ComponentProps<typeof Sidebar> & { session: Session };
 
@@ -155,7 +44,7 @@ export function AppSidebar({session, ...props}: AppSidebarProps) {
             id: validation.id,
             type: validation.event_type,
             title: validation.label,
-            url: `/validations/${validation.id}`,
+            url: `/validations/${validation.event_type}`.toLowerCase(),
             icon: (Icons[validation.icon as keyof typeof Icons] || BadgeQuestionMark) as LucideIcon,
         })) as SideBarItem[];
 
@@ -179,9 +68,15 @@ export function AppSidebar({session, ...props}: AppSidebarProps) {
                 </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
-                <NavMain items={items}/>
-                {/*<NavDocuments items={data.documents}/>*/}
-                {/*<NavSecondary items={data.navSecondary} className="mt-auto"/>*/}
+                {isLoading ?
+                    (
+                        <Skeleton className="h-4 w-[250px]"/>
+                    )
+                    :
+                    (
+                        <NavMain items={items}/>
+                    )}
+
             </SidebarContent>
             <SidebarFooter>
                 <NavUser user={session.user}/>

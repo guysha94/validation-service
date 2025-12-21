@@ -23,6 +23,10 @@ export const validationsInsertSchema = validationsSchema.omit({
 
 export type ValidationsInsertSchema = z.infer<typeof validationsInsertSchema>;
 
+export const ValidationsUpdateSchema = validationsInsertSchema.partial();
+
+export type ValidationsUpdateSchema = z.infer<typeof ValidationsUpdateSchema>;
+
 export const rulesSchema = z.object({
     id: z.string(),
     validation_id: z.string(),
@@ -40,6 +44,11 @@ export const rulesInsertSchema = rulesSchema.omit({
 });
 
 export type RulesInsertSchema = z.infer<typeof rulesInsertSchema>;
+
+
+export const RulesUpdateSchema = rulesInsertSchema.partial();
+
+export type RulesUpdateSchema = z.infer<typeof RulesUpdateSchema>;
 
 export const usersSchema = z.object({
     id: z.string(),
